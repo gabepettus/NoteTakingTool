@@ -44,8 +44,8 @@ module.exports = function(app) {
           if (err) throw err;
         });
         */
-        const allNotes = fs.writeFileSync(path.join(__dirname, "../db/db.json"),JSON.stringify(db) );
-        // writeDb(db);
+        // const allNotes = fs.writeFileSync(path.join(__dirname, "../db/db.json"),JSON.stringify(db) );
+        writeDb(db);
 
        //display the JSON to the users
        res.json(db);
