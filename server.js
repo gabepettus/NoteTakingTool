@@ -12,14 +12,11 @@ app.use(express.json());
 
 // tell Express to serve static files in public and data directories
 app.use(express.static("public"));
-app.use(express.static("public/assets"));
-app.use(express.static("public/assets/js"));
 
 // The below points our server to a series of "route" files.
 // These routes give our server a "map" of how to respond when users visit or request data from various URLs.
 require("./routes/apiRoutes")(app);
 require("./routes/htmlRoutes")(app);
-
 
 // Start the server & listen to incoming requests
 app.listen(PORT, function() {
