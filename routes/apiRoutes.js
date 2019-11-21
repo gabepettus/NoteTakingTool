@@ -2,70 +2,56 @@ const uuidv1 = require('uuid/v1');
 const readDb = require('../db/readDbFile');
 const writeDb = require('../db/writeDbFile');
 
-
 // Routes
 // root route returns index.html
 module.exports = function(app) {
 
-    // routes to return db.json file constaining notes
-    app.get("/api/notes", function(req, res) {
-      console.log("in /api/notes get route");
-      // req.body hosts is equal to the JSON post sent from the user
-      
-    //   const db = JSON.parse(fs.readFileSync(path.join(__dirname, "../db/db.json"),(err, data) => {
-        // if (err) throw err;
-    //   }));
-      
-    // console.log("existing Notes outside: ",results);
-      const db = readDb;
-      console.log("existing Notes outside: ",db);
+  // routes to return db.json file constaining notes
+  app.get("/api/notes", function(req, res) {
+    const db = readDb;
+    res.json(db);
+  });
 
-      res.json(db);
-    });
+  // routes to return db.json file constaining notes
+  app.post("/api/notes", function(req, res) {
+    // generate unique id
+    const uuid = uuidv1();
+    // receive the new note from the webserver
+    const newNote = req.body;
+    //set uuid value
+    newNote.id = uuid;
 
-    // routes to return db.json file constaining notes
-    app.post("/api/notes", function(req, res) {
-       console.log("in /api/notes post route");
+    // set variable to gather all data and seed it with data in the file
+    let db = readDb;
 
-       // generate unique id
-       const uuid = uuidv1();
-       // receive the new note from the webserver
-       const newNote = req.body;
-       newNote.id = uuid;
+    // append the newNote data to the variable with the file data
+    db.push(newNote); 
 
-       console.log("newnote:",newNote);
+    // overwrite file
+    // calls function exported from file '../db/writeDbFile';
+    writeDb(db);
 
-       // set variable to gather all data and seed it with data in the file
-       let db = readDb;
+    //return the data as JSON in the response
+    res.json(db);
+  });
 
-       // append the newNote data to the variable with the file data
-       db.push(newNote); 
-       console.log("merged",db);
+  // route to delete note (specific by id)
+  app.delete("/api/notes/:id", function(req, res) {
+    // read in the file containing the notes db
+    const db = readDb;
+    // get value of id from params
+    const deleteId = req.params.id;
 
-       // overwrite file
-       // calls function exported from file '../db/writeDbFile';
-       writeDb(db);
+    for (let i=0; i<db.length; i+=1 ) {
+      if (db[i].id === deleteId) {
+        // removes the i element from array
+        db.splice(i,1);
+        // no need to contiue looking for element to delete
+        break;
+      }
+    }
 
-       //display the JSON to the users
-       res.json(db);
-    });
-       /*
-       const allNotes = fs.writeFileSync(path.join(__dirname, "../db/db.json"),(err, JSON.stringify(db) ) => {
-         if (err) throw err;
-       });
-       */
-       // const allNotes = fs.writeFileSync(path.join(__dirname, "../db/db.json"),JSON.stringify(db) );
-
-    // route to delete note (specific by id)
-    app.delete("/api/notes/:id", function(req, res) {
-
-        let db = readDb;
-
-        console.log("in /api/notes:id delete route");
-        const deleteId = req.body;
-        console.log(" delete Note",deleteId);
-
-        res.json(db);
-    });
-
+    //return the data as JSON in the response
+    res.json(db);
+  });
 }
